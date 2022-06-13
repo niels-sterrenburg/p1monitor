@@ -1,0 +1,13 @@
+LICENSE
+MANIFEST.in
+README.md
+pyproject.toml
+setup.py
+src/__init__.py
+src/__main__.py
+src/p1read.py
+src/p1read.egg-info/PKG-INFO
+src/p1read.egg-info/SOURCES.txt
+src/p1read.egg-info/dependency_links.txt
+src/p1read.egg-info/entry_points.txt
+src/p1read.egg-info/top_level.txt

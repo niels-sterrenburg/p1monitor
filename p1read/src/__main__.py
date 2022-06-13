@@ -23,10 +23,6 @@ More information is available at:
 - https://www.netbeheernederland.nl
 - https://www.netbeheernederland.nl/_upload/Files/Slimme_meter_15_a727fce1f1.pdf
 
-Version:
---------
-
-- p1read v1.0.0
 """
 # Standard library imports
 import sys
@@ -37,7 +33,6 @@ clear = lambda: os.system('clear')
 
 # p1read
 import p1read
-from p1read import p1
 
 def usage():
     printf("Usage:\n\n\t %s [-d /dev/ttyUSBx -l] \n\n", os.path.basename(sys.argv[0]))
@@ -75,13 +70,13 @@ def main() -> None:
     # read
     if optloop:
         while True:
-            p1.read(serial_port)
+            p1read.read(serial_port)
             if optclear:
                 clear()
-            p1.dump()
+            p1read.dump()
     else:
-        p1.read(serial_port)
-        p1.dump()
+        p1read.read(serial_port)
+        p1read.dump()
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "p1read"
-version = "1.0.0"
+version = "1.0.3"
 description = "Library and cmdline app for reading P1 energy monitor"
 readme = "README.md"
 authors = [{ name = "Niels Sterrenburg", email = "niels.sterrenburg@gmail.com" }]
@@ -17,9 +17,6 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 keywords = ["feed", "reader", "tutorial"]
-dependencies = [
-    "serial",
-]
 requires-python = ">=3.8"
 
 #[project.optional-dependencies]
