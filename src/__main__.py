@@ -1,9 +1,8 @@
-"""Read the latest Real Python tutorials.
-
+"""
 Usage:
 ------
 
-    $ p1monitor [options]
+    $ p1read [options]
 
 Available options are:
 
@@ -20,14 +19,14 @@ Contact:
 
 More information is available at:
 
-- https://github.com/niels-sterrenburg/p1monitor
+- https://github.com/niels-sterrenburg/p1read
 - https://www.netbeheernederland.nl
 - https://www.netbeheernederland.nl/_upload/Files/Slimme_meter_15_a727fce1f1.pdf
 
 Version:
 --------
 
-- p1monitor v1.0.0
+- p1read v1.0.0
 """
 # Standard library imports
 import sys
@@ -36,9 +35,9 @@ import os
 import getopt
 clear = lambda: os.system('clear')
 
-# p1monitor
-import p1monitor
-from p1monitor import p1
+# p1read
+import p1read
+from p1read import p1
 
 def usage():
     printf("Usage:\n\n\t %s [-d /dev/ttyUSBx -l] \n\n", os.path.basename(sys.argv[0]))
