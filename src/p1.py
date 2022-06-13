@@ -1,10 +1,6 @@
-#!/usr/bin/python
-
 import sys
 import serial
 import os
-import getopt
-clear = lambda: os.system('clear')
 
 ##############################################################################
 # Sentimentally define printf :'( because we can :D
@@ -82,59 +78,6 @@ P1D.append(P1( 0.0, -1, '', 1, "deliveryL3          ",  '1-0:62.7.0',  'flo',   
 # TODO add gas & water
 
 ##############################################################################
-# Example P1 read
-##############################################################################
-
-#   b'\x00\n'
-#   b'/CTA5ZIV-METER\r\n'
-#   b'\r\n'
-#   b'1-3:0.2.8(50)\r\n'
-#   b'0-0:1.0.0(220601203913S)\r\n'
-#   b'0-0:96.1.1(4530303737303030373235393939303231)\r\n'
-#   b'1-0:1.8.1(000337.022*kWh)\r\n'
-#   b'1-0:1.8.2(000036.206*kWh)\r\n'
-#   b'1-0:2.8.1(000000.002*kWh)\r\n'
-#   b'1-0:2.8.2(000000.000*kWh)\r\n'
-#   b'0-0:96.14.0(0002)\r\n'
-#   b'1-0:1.7.0(00.351*kW)\r\n'
-#   b'1-0:2.7.0(00.000*kW)\r\n'
-#   b'0-0:96.7.21(00023)\r\n'
-#   b'0-0:96.7.9(00011)\r\n'
-#   b'1-0:99.97.0(2)(0-0:96.7.19)(211117215315W)(0000000000*s)(211123131043W)(0000000000*s)\r\n'
-#   b'1-0:32.32.0(00000)\r\n'
-#   b'1-0:52.32.0(00000)\r\n'
-#   b'1-0:72.32.0(00000)\r\n'
-#   b'1-0:32.36.0(00005)\r\n'
-#   b'1-0:52.36.0(00002)\r\n'
-#   b'1-0:72.36.0(00003)\r\n'
-#   b'0-0:96.13.0()\r\n'
-#   b'1-0:32.7.0(231.0*V)\r\n'
-#   b'1-0:52.7.0(225.0*V)\r\n'
-#   b'1-0:72.7.0(226.0*V)\r\n'
-#   b'1-0:31.7.0(001*A)\r\n'
-#   b'1-0:51.7.0(000*A)\r\n'
-#   b'1-0:71.7.0(000*A)\r\n'
-#   b'1-0:21.7.0(00.344*kW)\r\n'
-#   b'1-0:41.7.0(00.007*kW)\r\n'
-#   b'1-0:61.7.0(00.000*kW)\r\n'
-#   b'1-0:22.7.0(00.000*kW)\r\n'
-#   b'1-0:42.7.0(00.000*kW)\r\n'
-#   b'1-0:62.7.0(00.000*kW)\r\n'
-#   b'!2DD1\r\n'
-#   b'/CTA5ZIV-METER\r\n'
-
-
-##############################################################################
-# Usage
-##############################################################################
-
-def usage():
-    printf("Usage:\n\n\t %s [-d /dev/ttyUSBx || --device=/dev/ttyUSBx] [-m maria.cfg || --maria-config=maria.cfg] \n\n", os.path.basename(sys.argv[0]))
-    printf("\t\t-d or --device\t\tSerial device to read from (default /dev/ttyUSB0\n")
-    printf("\t\t-s or --sql\t\tConfig file with SQL details (when none given output goes to stdout)\n")
-    printf("\n")
-
-##############################################################################
 # Serial read
 ##############################################################################
 
@@ -147,11 +90,11 @@ ser.stopbits=serial.STOPBITS_ONE
 ser.xonxoff=0
 ser.rtscts=0
 ser.timeout=20
-ser.port="/dev/ttyUSB0"
 
-def serial_open():
+def serial_open(port):
     # Open COM port
     try:
+        ser.port = port
         ser.open()
     except:
         sys.exit ("Cannot open serial device:" % ser.name)      
@@ -194,24 +137,27 @@ def parse_line(line):
            if item.form == "str":
                item.strval = val
 
-##############################################################################
-# Send to database
-##############################################################################
-dbhost = "localhost"
-dbname = "p1monitor"
-dbuser = "kp"
-dbpass = "kameel"
 
-def p1todb():
 
-    print("todo")
+def read(port):
+    if not hasattr(read, "open"):
+        serial_open(port)
+        read.open = True
+
+    # read one full telegram
+    while True:
+        line = serial_read()
+        if len(line) > 2 and line[2] == "!":
+            break
+        else:
+            parse_line(line)
+ 
 
 ##############################################################################
 # Print to stdout
 ##############################################################################
 
-def p1tostdout():
-   clear()
+def dump():
    printf("%-20s%-15s%-10s%-80s\n\n", "P1 Monitor", "P1 Standard:", standard_version, standard_source)
    printf("%-20s%-15s%-10s%-80s\n", "=====","======","=====","============")
    printf("%-20s%-15s%-10s%-80s\n", "Item", "Value", "Unit", "Description")
@@ -228,56 +174,4 @@ def p1tostdout():
   
            printf("%-20s%-15s%-10s%-80s\n", item.dbname, item.floval, item.unit, item.desc)
 
-##############################################################################
-# Main
-##############################################################################
 
-def main():
-    # Get options
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hd:s:", ["help", "device=", "sql="])
-    except getopt.GetoptError as err:
-        print(err) 
-        usage()
-        sys.exit(2)
-
-    # Parse options
-    sqlcfg = "" 
-    for o, a in opts:
-        if o in ("-h", "--help"):
-            usage()
-            sys.exit()
-        elif o in ("-d", "--device"):
-            ser.port = a
-        elif o in ("-s", "--sql"):
-            sqlcfg = a
-        else:
-            assert False, "unhandled option"
-
-    # Get data
-    serial_open()
-    true=1
-    while true:
-        # read one full telegram
-        while 1:
-            line = serial_read()
-            if len(line) > 2 and line[2] == "!":
-                break
-            else:
-                parse_line(line)
-        # output gathered data
-        if sqlcfg == "":
-            p1tostdout()
-        else:
-            p1todb()
-
-if __name__ == "__main__":
-    main()
-
-#Close port and show status
-try:
-    ser.close()
-except:
-    sys.exit ("Oops %s. Aborted. Could not close serial port !!" % ser.name )      
-
-exit()
